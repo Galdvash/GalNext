@@ -1,15 +1,20 @@
-"use client";
-import { useEffect, useState } from "react";
+// Server example - dont need for an API endpoint
+import { connectToMongo, Post } from "@/lib/database";
 
-export default function HomePage() {
-  const [posts, setPosts] = useState([]);
+async function getPosts() {
+  await connectToMongo();
 
-  useEffect(() => {
-    fetch("/api/posts")
-      .then((res) => res.json())
-      .then((data) => setPosts(data))
-      .catch((err) => console.error(err));
-  }, []);
+  const posts = await Post.find({}).sort({ createdAt: -1 });
+
+  if (posts) {
+    return posts;
+  }
+
+  return [];
+}
+
+export default async function HomePage() {
+  const posts = await getPosts();
 
   return (
     <div style={{ padding: "2rem" }}>

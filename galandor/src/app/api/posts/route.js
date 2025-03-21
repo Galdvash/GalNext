@@ -1,9 +1,8 @@
-import connectToDatabase from "../../lib/mongodb";
-import Post from "../../model/Post";
 import { NextResponse } from "next/server";
+import { connectToMongo, Post } from "@/lib/database";
 
 export async function GET(request) {
-  await connectToDatabase();
+  await connectToMongo();
   try {
     const posts = await Post.find({}).sort({ createdAt: -1 });
     return NextResponse.json(posts, { status: 200 });
@@ -16,29 +15,29 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  await connectToDatabase();
+  await connectToMongo();
 
   // אימות Basic
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Basic ")) {
-    return new NextResponse(JSON.stringify({ error: "יש צורך באימות" }), {
-      status: 401,
-      headers: { "WWW-Authenticate": 'Basic realm="Secure Area"' },
-    });
-  }
+  // const authHeader = request.headers.get("authorization");
+  // if (!authHeader || !authHeader.startsWith("Basic ")) {
+  //   return new NextResponse(JSON.stringify({ error: "יש צורך באימות" }), {
+  //     status: 401,
+  //     headers: { "WWW-Authenticate": 'Basic realm="Secure Area"' },
+  //   });
+  // }
 
-  const base64Credentials = authHeader.split(" ")[1];
-  const credentials = Buffer.from(base64Credentials, "base64").toString(
-    "ascii"
-  );
-  const [username, password] = credentials.split(":");
+  // const base64Credentials = authHeader.split(" ")[1];
+  // const credentials = Buffer.from(base64Credentials, "base64").toString(
+  //   "ascii"
+  // );
+  // const [username, password] = credentials.split(":");
 
-  if (
-    username !== process.env.ADMIN_USER ||
-    password !== process.env.ADMIN_PASSWORD
-  ) {
-    return NextResponse.json({ error: "אימות נכשל" }, { status: 401 });
-  }
+  // if (
+  //   username !== process.env.ADMIN_USER ||
+  //   password !== process.env.ADMIN_PASSWORD
+  // ) {
+  //   return NextResponse.json({ error: "אימות נכשל" }, { status: 401 });
+  // }
 
   const body = await request.json();
   const { title, content } = body;
